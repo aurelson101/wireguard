@@ -48,8 +48,7 @@ wg genkey | tee privatekey | wg pubkey > publickey
 echo "[Interface]
 PrivateKey = $(cat privatekey)
 Address = 10.0.0.1/24, fd86:ea04:1115::1/64
-ListenPort = 51820
-DNS = 192.168.1.1, 2001:2356:5588::123" > /etc/wireguard/wg0.conf
+ListenPort = 51820" > /etc/wireguard/wg0.conf
 
 #exemple iptables conf if ufw don't work :
 #PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
