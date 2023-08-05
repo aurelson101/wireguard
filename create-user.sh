@@ -41,7 +41,7 @@ Address = $IPV4/24, $IPV6/64
 
 [Peer]
 PublicKey = $SERVER_PUBKEY
-Endpoint = $SERVER_ENDPOINT
+Endpoint = $SERVER_ENDPOINT:51820
 AllowedIPs = 0.0.0.0/0, ::/0" > /etc/fireguard/$USERNAME.conf
 
 # Add user to server config file
