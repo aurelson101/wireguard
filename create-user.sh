@@ -38,6 +38,7 @@ IPV6="fd86:ea04:1115::$(printf '%x\n' $IP)"
 echo "[Interface]
 PrivateKey = $(cat /etc/fireguard/$USERNAME.priv)
 Address = $IPV4/24, $IPV6/64
+DNS = 192.168.1.1, 2001:2356:5588::123
 
 [Peer]
 PublicKey = $SERVER_PUBKEY
