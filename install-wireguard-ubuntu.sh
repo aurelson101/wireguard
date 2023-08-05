@@ -51,6 +51,10 @@ Address = 10.0.0.1/24, fd86:ea04:1115::1/64
 ListenPort = 51820
 DNS = 192.168.1.1, 2001:2356:5588::123" > /etc/wireguard/wg0.conf
 
+#exemple iptables conf if ufw don't work :
+#PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+#PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
 # exemple public peer don't forget to edit it
 #[Peer]
 #PublicKey = <PEER_PUBLIC_KEY>
