@@ -37,19 +37,19 @@ IPV6="fd86:ea04:1115::$(printf '%x\n' $IP)"
 # Create user config file
 echo "[Interface]
 PrivateKey = $(cat /etc/fireguard/$USERNAME.priv)
-Address = $IPV4/24, $IPV6/64
+Address = $IPV4/32, $IPV6/128
 DNS = 192.168.1.1, 2001:2356:5588::123
 
 [Peer]
 PublicKey = $SERVER_PUBKEY
-Endpoint = $SERVER_ENDPOINT:51820
 AllowedIPs = 0.0.0.0/0, ::/0" > /etc/fireguard/$USERNAME.conf
+Endpoint = $SERVER_ENDPOINT:51820
+Persistentkeepalive = 21
 
 # Add user to server config file
-echo "
-[Peer]
-PublicKey = $(cat /etc/fireguard/$USERNAME.pub)
-AllowedIPs = $IPV4/32, $IPV6/128" >> /etc/wireguard/wg0.conf
+#[Peer]
+#PublicKey = $(cat /etc/fireguard/$USERNAME.pub)
+#AllowedIPs = $IPV4/32, $IPV6/128" >> /etc/wireguard/wg0.conf"
 
 # Restart WireGuard to apply changes
 wg-quick down wg0
