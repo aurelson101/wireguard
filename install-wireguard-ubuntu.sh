@@ -42,7 +42,7 @@ echo "Public IPv6 address: $IPV6"
 
 # Install WireGuard and UFW
 apt-get update
-apt-get install -y wireguard ufw qrencode
+apt-get install -y wireguard qrencode
 
 # Enable forwarding
 echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
@@ -112,31 +112,10 @@ EOL
 # Start WireGuard
 wg-quick up wg0
 
-# Enable UFW
-ufw --force enable
-
-# Allow SSH, DNS, NTP, HTTP, and HTTPS for IPv4 and IPv6
-ufw default deny incoming
-ufw default allow outgoing
-# Allow forwarding
-ufw default allow routed
-ufw allow ssh
-ufw allow 53/tcp
-ufw allow 53/udp
-ufw allow 123/udp
-ufw allow http
-ufw allow https
-ufw allow $portw/udp # WireGuard
-# Enable NAT for outgoing traffic on eth0
-sed -i '1s/^/*nat\n:POSTROUTING ACCEPT [0:0]\n/' /etc/ufw/before.rules
-echo "-A POSTROUTING -o $ETH -j MASQUERADE" >> /etc/ufw/before.rules
-echo "COMMIT" >> /etc/ufw/before.rules
-ufw reload
-
-#exemple conf route and ufw subnet local
+# E.g. conf route and 
 # Create IPv4 and IPv6 subnets
 #ip route add 192.168.0.0/16 dev wg0
 #ip -6 route add fd86:ea04:1115::/48 dev wg0
 
-# Allow access to subnet 192.168.0.0/16
-#ufw allow from 192.168.0.0/16 to any port 22 proto tcp
+# E.g. Allow access  ssh to subnet 192.168.0.0/16
+#iptables -A INPUT -s 192.168.0.0/16 -p tcp --dport 22 -j ACCEPT
