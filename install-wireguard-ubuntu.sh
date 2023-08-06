@@ -103,19 +103,10 @@ tee /etc/wireguard/wg0.conf <<EOL
 PrivateKey = $privkey
 Address = $ipv4_subnet/24, $ipv6_subnet/64
 ListenPort = $portw
-#exemple iptables conf if ufw don't work :
-#PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o $ETH -j MASQUERADE
-#PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o $ETH -j MASQUERADE
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o $ETH -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o $ETH -j MASQUERADE
 SaveConfig = true
 EOL
 
 # Start WireGuard
 wg-quick up wg0
-
-# E.g. conf route and 
-# Create IPv4 and IPv6 subnets
-#ip route add 192.168.0.0/16 dev wg0
-#ip -6 route add fd86:ea04:1115::/48 dev wg0
-
-# E.g. Allow access  ssh to subnet 192.168.0.0/16
-#iptables -A INPUT -s 192.168.0.0/16 -p tcp --dport 22 -j ACCEPT

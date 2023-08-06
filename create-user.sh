@@ -36,11 +36,27 @@ read -p "Enter hostname vpn: " SERVER_ENDPOINT
 
 echo - server endpoint is $SERVER_ENDPOINT
 
-# Get next free IP address for user (IPv4 and IPv6)
-read IP < <(echo $(grep AllowedIPs /etc/wireguard/wg0.conf | grep -v : | awk '{print $3}' | cut -d "." -f 4 | sort -n | tail -1) + 1 | bc)
-IPV4="$ipv4_subnet.$IP"
-read IP < <(echo $(grep AllowedIPs /etc/wireguard/wg0.conf | grep : | awk '{print $3}' | cut -d ":" -f 8 | sort -n | tail -1) + 1 | bc)
-IPV6="$ipv6_subnet::$(printf '%x\n' $IP)"
+# Detect IPv4 and IPv6 from wg0
+ipv4=$(ip -4 addr show wg0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+ipv6=$(ip -6 addr show wg0 | grep -oP '(?<=inet6\s)[\da-f:]+')
+
+# Check if IP addresses have been detected
+if [[ -z $ipv4 ]] && [[ -z $ipv6 ]]; then
+    echo "Aucune adresse IP détectée pour l'interface wg0"
+    exit 1
+fi
+
+# View detected IP address
+echo "Adress IPv4 from wg0: $ipv4"
+echo "Adress IPv6 from wg0: $ipv6"
+
+
+# Prompt for the IPv4 subnet
+read -p "Enter the IPv4 subnet (ex 10.10.10.xxx): " ipv4_subnet
+read -p "Enter the IPv6 subnet (fd86:ea04:1115::xxx): " ipv6_subnet
+echo "Adding IPv4 subnet: $ipv4_subnet"
+echo "Adding IPv6 subnet: $ipv6_subnet"
+
 
 #Get DNS selection :
 echo "Wireguard DNS choice:"
@@ -88,26 +104,31 @@ fi
 
 # Create user config file
 tee /etc/wireguard/$USERNAME.conf <<EOL
-echo "[Interface]
-PrivateKey = $(cat /etc/wireguard/$USERNAME.priv)
-Address = $IPV4/32, $IPV6/128
+[Interface]
+PrivateKey = $(cat /etc/wireguard/$USERNAME-priv)
+Address = $ipv4_subnet/32, $ipv6_subnet/128
 DNS = $dns4, $dns6
 
 [Peer]
 PublicKey = $SERVER_PUBKEY
-AllowedIPs = 0.0.0.0/0, ::/0" > /etc/wireguard/$USERNAME.conf
+AllowedIPs = 0.0.0.0/0, ::/0"
 Endpoint = $SERVER_ENDPOINT:51820
 Persistentkeepalive = 21
 EOL
 
-# Add user to server config file
-echo "" >> /etc/wireguard/wg0.conf
-echo "[Peer]" >> /etc/wireguard/wg0.conf
-echo "PublicKey = $USERNAMEpub" >> /etc/wireguard/wg0.conf
-echo "AllowedIPs = $IPV4/32, $IPV6/128" >> /etc/wireguard/wg0.conf
+# stop WireGuard
+wg-quick down wg0
+# Content to append
+content="
+
+[peer]
+PublicKey = $USERNAMEpub
+AllowedIPs = $ipv4_subnet/32"
+
+# Append the content to the file
+echo "$content" | sudo tee -a /etc/wireguard/wg0.conf
 
 # Restart WireGuard to apply changes
-wg-quick down wg0
 wg-quick up wg0
 
 # Ask user if they want to display config as text or QR code
