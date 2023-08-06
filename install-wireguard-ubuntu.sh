@@ -62,13 +62,13 @@ echo "2. Automatically generate IPv4 and IPv6 subnets"
 read choice
 
 if [ "$choice" == "1" ]; then
-    echo "Please enter the IPv4 subnet (e.g. 10.20.30.1/24):"
+    echo "Please enter the IPv4 subnet (e.g. 10.20.30.1):"
     read ipv4_subnet
-    echo "Please enter the IPv6 subnet (e.g. fd86:1111:2222::1/64):"
+    echo "Please enter the IPv6 subnet (e.g. fd86:1111:2222::1):"
     read ipv6_subnet
 elif [ "$choice" == "2" ]; then
-    ipv4_subnet="10.10.10.1/24"
-    ipv6_subnet="fd86:ea04:1115::1/64"
+    ipv4_subnet="10.10.10.1"
+    ipv6_subnet="fd86:ea04:1115::1"
 else
     echo "Invalid choice, exiting."
     exit 1
@@ -101,7 +101,7 @@ echo $portw
 tee /etc/wireguard/wg0.conf <<EOL
 [Interface]
 PrivateKey = $privkey
-Address = $ipv4_subnet, $ipv6_subnet
+Address = $ipv4_subnet/24, $ipv6_subnet/64
 ListenPort = $portw
 #exemple iptables conf if ufw don't work :
 #PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o $ETH -j MASQUERADE
